@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "621545962516",
+    "firebase_url": "https://pictio-4fdaf.firebaseio.com",
+    "project_id": "pictio-4fdaf",
+    "storage_bucket": "pictio-4fdaf.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:621545962516:android:571e82be097a86b23a3b01",
+        "android_client_info": {
+          "package_name": "com.pictionary.pictio"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "621545962516-2bbdtkct985dk6uflr68dtfekg7qlpdp.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.pictionary.pictio",
+            "certificate_hash": "9acfb365c83022000765cc1dc193c04b7d23b93d"
+          }
+        },
+        {
+          "client_id": "621545962516-eangsarhomm7ddcj6t0an07vpbcmgie2.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCq97ibgwK6xA1DpUXXavG_wey9zfe9Z-U"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "621545962516-eangsarhomm7ddcj6t0an07vpbcmgie2.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
