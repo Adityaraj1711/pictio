@@ -17,12 +17,12 @@
         android:layout_height="wrap_content"
         android:id="@+id/bottom"
         android:layout_alignParentBottom="true">
-        
+
         <com.google.android.material.bottomnavigation.BottomNavigationView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:id="@+id/bottom_navigation"
-            app:itemIconTint="@color/colorAccent"
+            app:itemIconTint="@color/colorBlack"
             app:labelVisibilityMode="unlabeled"
             android:background="?android:windowBackground"
             app:menu="@menu/bottom_navigation"/>
