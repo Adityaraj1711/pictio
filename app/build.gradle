@@ -44,6 +44,8 @@ dependencies {
 
     // for rounded image view
     implementation 'de.hdodenhof:circleimageview:3.1.0'
+    // for image setting in posts
+    implementation 'com.theartofdev.edmodo:android-image-cropper:2.7.+'
     // glide for images
     implementation 'com.github.bumptech.glide:glide:4.11.0'
     kapt 'com.github.bumptech.glide:compiler:4.11.0'
