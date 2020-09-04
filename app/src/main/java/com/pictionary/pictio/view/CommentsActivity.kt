@@ -7,11 +7,15 @@ import android.os.Bundle
 import android.view.View
 import android.widget.*
 import androidx.appcompat.widget.Toolbar
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.database.*
 import com.pictionary.pictio.R
+import com.pictionary.pictio.view.Adapter.CommentAdapter
+import com.pictionary.pictio.view.Model.Comment
 import com.pictionary.pictio.view.Model.User
 
 class CommentsActivity : AppCompatActivity() {
@@ -25,6 +29,10 @@ class CommentsActivity : AppCompatActivity() {
 
     lateinit var firebaseUser: FirebaseUser
 
+    lateinit var recyclerView: RecyclerView
+    lateinit var commentAdapter: CommentAdapter
+    lateinit var commentList: ArrayList<Comment>
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_comments)
@@ -32,6 +40,7 @@ class CommentsActivity : AppCompatActivity() {
         getIntentData()
         onClickListener()
         getImage()
+        readComments()
     }
 
     private fun bindViews() {
@@ -44,6 +53,14 @@ class CommentsActivity : AppCompatActivity() {
                 finish()
             }
         })
+
+        recyclerView = findViewById(R.id.recycler_view)
+        recyclerView.setHasFixedSize(true)
+        val linearLayoutManager: LinearLayoutManager = LinearLayoutManager(this)
+        recyclerView.layoutManager = linearLayoutManager
+        commentList = ArrayList()
+        commentAdapter = CommentAdapter(this, commentList)
+        recyclerView.adapter = commentAdapter
 
         addcomment = findViewById(R.id.add_comment)
         image_profile = findViewById(R.id.image_profile)
@@ -92,4 +109,22 @@ class CommentsActivity : AppCompatActivity() {
             }
         })
     }
+
+    private fun readComments(){
+        var databaseReference: DatabaseReference = FirebaseDatabase.getInstance().getReference("Comments").child(postId)
+        databaseReference.addValueEventListener(object : ValueEventListener{
+            override fun onCancelled(p0: DatabaseError) {
+            }
+
+            override fun onDataChange(dataSnapshot: DataSnapshot) {
+                commentList.clear()
+                for(snapshot in dataSnapshot.children){
+                    val comment: Comment = snapshot.getValue(Comment::class.java)!!
+                    commentList.add(comment)
+                }
+                commentAdapter.notifyDataSetChanged()
+            }
+        })
+    }
+
 }

@@ -11,6 +11,7 @@ import android.widget.EditText
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.bumptech.glide.Glide
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.*
 import com.pictionary.pictio.R
@@ -58,7 +59,7 @@ class SearchFragment : Fragment() {
             override fun onDataChange(dataSnapshot: DataSnapshot) {
                 if (search_bar.text.toString() == "") {
                     mUsers.clear()
-                    for (snapshot in dataSnapshot.children) {
+                    for (snapshot: DataSnapshot in dataSnapshot.children) {
                         val user = snapshot.getValue(User::class.java)!!
                         mUsers.add(user)
                     }

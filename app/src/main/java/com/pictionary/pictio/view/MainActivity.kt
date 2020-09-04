@@ -2,6 +2,7 @@ package com.pictionary.pictio.view
 
 import android.content.Context
 import android.content.Intent
+import android.content.SharedPreferences
 import android.os.Bundle
 import android.util.Log
 import android.view.MenuItem
@@ -32,7 +33,16 @@ class MainActivity : AppCompatActivity() {
         bindViews()
         onNavigationItemSelectedListener()
 
-        supportFragmentManager.beginTransaction().replace(R.id.fragment_container, HomeFragment()).commit()
+        val intent: Bundle? = intent.extras
+        if(intent != null){
+            val publisher: String = intent.getString("publisherid")!!
+            val editor: SharedPreferences.Editor = getSharedPreferences("PREFS", Context.MODE_PRIVATE).edit()
+            editor.putString("profileid", publisher)
+            editor.apply()
+            supportFragmentManager.beginTransaction().replace(R.id.fragment_container, ProfileFragment()).commit()
+        } else {
+            supportFragmentManager.beginTransaction().replace(R.id.fragment_container, HomeFragment()).commit()
+        }
     }
 
     private fun bindViews() {
