@@ -1,6 +1,8 @@
 package com.pictionary.pictio.view.Adapter
 
+import android.annotation.SuppressLint
 import android.content.Context
+import android.content.Intent
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -15,6 +17,7 @@ import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.database.*
 import com.pictionary.pictio.R
 import com.pictionary.pictio.view.Adapter.PostAdapter.ViewHolder
+import com.pictionary.pictio.view.CommentsActivity
 import com.pictionary.pictio.view.Model.Post
 import com.pictionary.pictio.view.Model.User
 
@@ -55,6 +58,8 @@ public class PostAdapter(private val mContext: Context, private val mPost: List<
         isLiked(post.postid!!, holder.like)
         numberOfLikes(holder.likes, post.postid!!)
 
+        getComments(post.postid!!, holder.comments)
+
         holder.like.setOnClickListener(object : View.OnClickListener{
             override fun onClick(p0: View?) {
                 if((holder.like.tag) == "like"){
@@ -63,8 +68,29 @@ public class PostAdapter(private val mContext: Context, private val mPost: List<
                     FirebaseDatabase.getInstance().getReference().child("Likes").child(post.postid!!).child(firebaseUser!!.uid).removeValue()
                 }
             }
-
         })
+
+        // for comment image view
+        holder.comment.setOnClickListener(object : View.OnClickListener{
+            override fun onClick(p0: View?) {
+                val intent: Intent = Intent(mContext, CommentsActivity::class.java)
+                intent.putExtra("postid", post.postid)
+                intent.putExtra("publisherid", post.publisher)
+                mContext.startActivity(intent)
+            }
+        })
+
+        // for comments text view
+        holder.comments.setOnClickListener(object : View.OnClickListener{
+            override fun onClick(p0: View?) {
+                val intent: Intent = Intent(mContext, CommentsActivity::class.java)
+                intent.putExtra("postid", post.postid)
+                intent.putExtra("publisherid", post.publisher)
+                mContext.startActivity(intent)
+            }
+        })
+
+
     }
 
     private fun publisherInfo(imageProfile: ImageView, username: TextView, publisher: TextView, userid: String){
@@ -77,6 +103,20 @@ public class PostAdapter(private val mContext: Context, private val mPost: List<
                 Glide.with(mContext).load(user!!.imageurl).into(imageProfile)
                 username.setText(user.username)
                 publisher.setText(user.username)
+            }
+
+        })
+    }
+
+    private fun getComments(postId: String, comments: TextView){
+        var databaseReference: DatabaseReference = FirebaseDatabase.getInstance().reference.child("Comments").child(postId)
+        databaseReference.addValueEventListener(object : ValueEventListener{
+            override fun onCancelled(p0: DatabaseError) {
+            }
+
+            @SuppressLint("SetTextI18n")
+            override fun onDataChange(dataSnapshot: DataSnapshot) {
+                comments.setText("View all ${dataSnapshot.childrenCount} Comments")
             }
 
         })
