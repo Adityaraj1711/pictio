@@ -61,7 +61,7 @@ class PostActivity : AppCompatActivity() {
 
         })
 
-        CropImage.activity().setAspectRatio(1, 1).start(this@PostActivity)
+        CropImage.activity().start(this@PostActivity)
     }
 
     // ctrl + O
@@ -120,7 +120,6 @@ class PostActivity : AppCompatActivity() {
             }
 
         } else {
-            progressDialog.dismiss()
             Toast.makeText(this@PostActivity, "No art is selected .. ", Toast.LENGTH_SHORT).show()
         }
     }
