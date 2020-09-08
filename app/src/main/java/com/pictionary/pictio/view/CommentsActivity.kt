@@ -105,7 +105,8 @@ class CommentsActivity : AppCompatActivity() {
             }
             override fun onDataChange(dataSnapshot: DataSnapshot) {
                 val user: User? = dataSnapshot.getValue(User::class.java)
-                Glide.with(applicationContext).load(user!!.imageurl).into(image_profile)
+                if(user != null)
+                    Glide.with(applicationContext).load(user!!.imageurl).into(image_profile)
             }
         })
     }
