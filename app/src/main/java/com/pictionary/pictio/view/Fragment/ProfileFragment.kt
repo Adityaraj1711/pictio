@@ -3,7 +3,6 @@ package com.pictionary.pictio.view.Fragment
 import android.content.Context.MODE_PRIVATE
 import android.content.SharedPreferences
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -23,8 +22,11 @@ import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.database.ValueEventListener
 import com.pictionary.pictio.R
+import com.pictionary.pictio.view.Adapter.MyFotosAdapter
 import com.pictionary.pictio.view.Model.Post
 import com.pictionary.pictio.view.Model.User
+import java.util.*
+import kotlin.collections.ArrayList
 
 
 class ProfileFragment : Fragment() {
@@ -39,30 +41,31 @@ class ProfileFragment : Fragment() {
     lateinit var username:TextView
     lateinit var edit_profile: Button
 
-    lateinit var mySaves: List<String>
+    lateinit var mySaves: ArrayList<String>
 
     lateinit var firebaseUser: FirebaseUser
     lateinit var profileid: String
 
     lateinit var recyclerView: RecyclerView
-    lateinit var postList: List<Post>
-
-    lateinit var recyclerView_saves: RecyclerView
-    lateinit var postList_saves: List<Post>
     lateinit var sharedPreferences: SharedPreferences
     lateinit var my_fotos: ImageButton
     lateinit var saved_fotos:ImageButton
 
+    lateinit var postList: ArrayList<Post>
+    lateinit var recyclerView_saves: RecyclerView
+    lateinit var postList_saves: ArrayList<Post>
+
+    lateinit var myFotosAdapter: MyFotosAdapter
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         val view = inflater.inflate(R.layout.fragment_profile, container, false)
         bindViews(view)
-        recyclerView.visibility = View.VISIBLE
-        recyclerView_saves.visibility = View.GONE
 
         userInfo()
         getFollowers()
         getNrPosts()
+        myFotos()
+        mySaves()
         editProfileClickListener()
         return view
     }
@@ -71,7 +74,7 @@ class ProfileFragment : Fragment() {
         firebaseUser = FirebaseAuth.getInstance().currentUser!!
 
         sharedPreferences = context!!.getSharedPreferences("PREFS", MODE_PRIVATE)
-        profileid = sharedPreferences.getString("profileid", "none").toString();
+        profileid = sharedPreferences.getString("profileid", "none")!!
 
         image_profile = view.findViewById(R.id.image_profile)
         posts = view.findViewById(R.id.posts)
@@ -90,13 +93,18 @@ class ProfileFragment : Fragment() {
         val mLayoutManager: LinearLayoutManager = GridLayoutManager(context, 3)
         recyclerView.layoutManager = mLayoutManager
         postList = ArrayList()
-
+        myFotosAdapter = MyFotosAdapter(context!!, postList)
+        recyclerView.adapter = myFotosAdapter
 
         recyclerView_saves = view.findViewById(R.id.recycler_view_save)
         recyclerView_saves.setHasFixedSize(true)
         val mLayoutManagers: LinearLayoutManager = GridLayoutManager(context, 3)
         recyclerView_saves.layoutManager = mLayoutManagers
         postList_saves = ArrayList()
+
+        recyclerView.visibility = View.VISIBLE
+        recyclerView_saves.visibility = View.GONE
+
     }
 
     private fun userInfo() {
@@ -112,7 +120,8 @@ class ProfileFragment : Fragment() {
                     username.text = user.username
                     fullname.text = user.fullname
                     bio.text = user.bio
-}            }
+                }
+            }
 
             override fun onCancelled(databaseError: DatabaseError) {}
         })
@@ -205,6 +214,72 @@ class ProfileFragment : Fragment() {
                     }
                 }
             }
+        })
+
+        my_fotos.setOnClickListener {
+            recyclerView.visibility = View.VISIBLE
+            recyclerView_saves.visibility = View.GONE
+        }
+
+        saved_fotos.setOnClickListener {
+            recyclerView.visibility = View.GONE
+            recyclerView_saves.visibility = View.VISIBLE
+        }
+
+    }
+
+    private fun myFotos() {
+        val reference = FirebaseDatabase.getInstance().getReference("Posts")
+        reference.addValueEventListener(object : ValueEventListener {
+            override fun onDataChange(dataSnapshot: DataSnapshot) {
+                postList.clear()
+                for (snapshot in dataSnapshot.children) {
+                    val post = snapshot.getValue(Post::class.java)!!
+                    if (post.publisher == profileid) {
+                        postList.add(post)
+                    }
+                }
+                Collections.reverse(postList)
+                myFotosAdapter.notifyDataSetChanged()
+            }
+
+            override fun onCancelled(databaseError: DatabaseError) {}
+        })
+    }
+
+
+    private fun mySaves() {
+        mySaves = ArrayList()
+        val reference =
+            FirebaseDatabase.getInstance().getReference("Saves").child(firebaseUser.uid)
+        reference.addValueEventListener(object : ValueEventListener {
+            override fun onDataChange(dataSnapshot: DataSnapshot) {
+                for (snapshot in dataSnapshot.children) {
+                    mySaves.add(snapshot.key!!)
+                }
+                readSaves()
+            }
+
+            override fun onCancelled(databaseError: DatabaseError) {}
+        })
+    }
+
+    private fun readSaves() {
+        val reference = FirebaseDatabase.getInstance().getReference("Posts")
+        reference.addValueEventListener(object : ValueEventListener {
+            override fun onDataChange(dataSnapshot: DataSnapshot) {
+                postList_saves.clear()
+                for (snapshot in dataSnapshot.children) {
+                    val post = snapshot.getValue(Post::class.java)!!
+                    for (id in mySaves) {
+                        if (post.postid == id) {
+                            postList_saves.add(post)
+                        }
+                    }
+                }
+            }
+
+            override fun onCancelled(databaseError: DatabaseError) {}
         })
     }
 

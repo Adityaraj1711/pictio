@@ -6,7 +6,6 @@ import android.content.Intent
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Button
 import android.widget.ImageView
 import android.widget.TextView
 import android.widget.Toast
@@ -20,6 +19,7 @@ import com.pictionary.pictio.view.Adapter.PostAdapter.ViewHolder
 import com.pictionary.pictio.view.CommentsActivity
 import com.pictionary.pictio.view.Model.Post
 import com.pictionary.pictio.view.Model.User
+
 
 // first write the inner viewholder class inside. Then extend the PostAdapter class with RecyclerView.ViewHolder
 // then implement the members. then create the context and List. and create other variables required by the overridden functions
@@ -59,6 +59,19 @@ public class PostAdapter(private val mContext: Context, private val mPost: List<
         numberOfLikes(holder.likes, post.postid!!)
 
         getComments(post.postid!!, holder.comments)
+        isSaved(post.postid!!, holder.save)
+
+        holder.save.setOnClickListener {
+            if (holder.save.tag.equals("save")) {
+                FirebaseDatabase.getInstance().reference.child("Saves")
+                    .child(firebaseUser!!.uid)
+                    .child(post.postid!!).setValue(true)
+            } else {
+                FirebaseDatabase.getInstance().reference.child("Saves")
+                    .child(firebaseUser!!.uid)
+                    .child(post.postid!!).removeValue()
+            }
+        }
 
         holder.like.setOnClickListener(object : View.OnClickListener{
             override fun onClick(p0: View?) {
@@ -155,6 +168,26 @@ public class PostAdapter(private val mContext: Context, private val mPost: List<
             }
         })
     }
+
+    private fun isSaved(postid: String, imageView: ImageView) {
+        val firebaseUser = FirebaseAuth.getInstance().currentUser
+        val reference = FirebaseDatabase.getInstance().reference.child("Saves").child(firebaseUser!!.uid)
+        reference.addValueEventListener(object : ValueEventListener {
+            override fun onDataChange(dataSnapshot: DataSnapshot) {
+                if (dataSnapshot.child(postid).exists()) {
+                    imageView.setImageResource(R.drawable.ic_save_black)
+                    imageView.tag = "saved"
+                } else {
+                    imageView.setImageResource(R.drawable.ic_save)
+                    imageView.tag = "save"
+                }
+            }
+
+            override fun onCancelled(databaseError: DatabaseError) {
+            }
+        })
+    }
+
 
     inner class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         lateinit var image_profile : ImageView
